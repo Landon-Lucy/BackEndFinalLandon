@@ -75,8 +75,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     ));
 
 // REGISTER YOUR HERO SERVICE
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<CharacterService>();
+//builder.Services.AddScoped<AuthService>();
+//builder.Services.AddScoped<CharacterService>();
 
 var app = builder.Build();
 
