@@ -13,9 +13,6 @@ public partial class TransferRecord
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("sku_number")]
-    public int? SkuNumber { get; set; }
-
     [Column("storagelocationid")]
     public int? Storagelocationid { get; set; }
 
@@ -31,15 +28,14 @@ public partial class TransferRecord
     [Column("receiveditemid")]
     public int? Receiveditemid { get; set; }
 
+    [Column("datetime", TypeName = "timestamp without time zone")]
+    public DateTime? Datetime { get; set; }
+
     [ForeignKey("Receiveditemid")]
     [InverseProperty("TransferRecords")]
     public virtual ReceivedItem? Receiveditem { get; set; }
 
-    [ForeignKey("SkuNumber")]
-    [InverseProperty("TransferRecords")]
-    public virtual Item? SkuNumberNavigation { get; set; }
-
     [ForeignKey("Storagelocationid")]
     [InverseProperty("TransferRecords")]
-    public virtual Storagelocation? Storagelocation { get; set; }
+    public virtual Bin? Storagelocation { get; set; }
 }

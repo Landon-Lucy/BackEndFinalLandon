@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Back_EndAPI.Entities;
 
-[Table("storagelocation", Schema = "Team2Part2")]
-public partial class Storagelocation
+[Table("bin", Schema = "Team2Part2")]
+public partial class Bin
 {
     [Key]
     [Column("id")]
@@ -25,13 +25,23 @@ public partial class Storagelocation
     [Column("aisle_shelf_id")]
     public int? AisleShelfId { get; set; }
 
+    [Column("height")]
+    public int? Height { get; set; }
+
+    [Column("volume")]
+    public int? Volume { get; set; }
+
     [ForeignKey("AisleBayId")]
-    [InverseProperty("Storagelocations")]
+    [InverseProperty("Bins")]
     public virtual AisleBay? AisleBay { get; set; }
 
     [ForeignKey("AisleShelfId")]
-    [InverseProperty("Storagelocations")]
+    [InverseProperty("Bins")]
     public virtual AisleShelf? AisleShelf { get; set; }
+
+    [ForeignKey("SkuNumber")]
+    [InverseProperty("Bins")]
+    public virtual Item? SkuNumberNavigation { get; set; }
 
     [InverseProperty("Storagelocation")]
     public virtual ICollection<TransferRecord> TransferRecords { get; set; } = new List<TransferRecord>();

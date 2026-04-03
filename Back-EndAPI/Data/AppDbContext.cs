@@ -20,6 +20,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Bay> Bays { get; set; }
 
+    public virtual DbSet<Bin> Bins { get; set; }
+
     public virtual DbSet<Discrepancy> Discrepancies { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
@@ -35,8 +37,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ReceivedShipment> ReceivedShipments { get; set; }
 
     public virtual DbSet<Shelf> Shelves { get; set; }
-
-    public virtual DbSet<Storagelocation> Storagelocations { get; set; }
 
     public virtual DbSet<TransferRecord> TransferRecords { get; set; }
 
@@ -74,6 +74,19 @@ public partial class AppDbContext : DbContext
             entity.HasKey(e => e.BayNumber).HasName("bay_pkey");
 
             entity.Property(e => e.BayNumber).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<Bin>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("storagelocation_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("nextval('\"Team2Part2\".storagelocation_id_seq'::regclass)");
+
+            entity.HasOne(d => d.AisleBay).WithMany(p => p.Bins).HasConstraintName("storagelocation_bay_numberid_fkey");
+
+            entity.HasOne(d => d.AisleShelf).WithMany(p => p.Bins).HasConstraintName("storagelocation_shelf_numberid_fkey");
+
+            entity.HasOne(d => d.SkuNumberNavigation).WithMany(p => p.Bins).HasConstraintName("fk_sku_number");
         });
 
         modelBuilder.Entity<Discrepancy>(entity =>
@@ -136,15 +149,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ShelfLetter).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<Storagelocation>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("storagelocation_pkey");
-
-            entity.HasOne(d => d.AisleBay).WithMany(p => p.Storagelocations).HasConstraintName("storagelocation_bay_numberid_fkey");
-
-            entity.HasOne(d => d.AisleShelf).WithMany(p => p.Storagelocations).HasConstraintName("storagelocation_shelf_numberid_fkey");
-        });
-
         modelBuilder.Entity<TransferRecord>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("transferrecord_pkey");
@@ -152,8 +156,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("nextval('\"Team2Part2\".transferrecord_id_seq'::regclass)");
 
             entity.HasOne(d => d.Receiveditem).WithMany(p => p.TransferRecords).HasConstraintName("transferrecord_receiveditemid_fkey");
-
-            entity.HasOne(d => d.SkuNumberNavigation).WithMany(p => p.TransferRecords).HasConstraintName("transferrecord_sku_number_fkey");
 
             entity.HasOne(d => d.Storagelocation).WithMany(p => p.TransferRecords).HasConstraintName("transferrecord_storagelocationid_fkey");
         });

@@ -13,9 +13,6 @@ public partial class Aisle
     [Column("aisle_number")]
     public int AisleNumber { get; set; }
 
-    [Column("shelf_height")]
-    public int? ShelfHeight { get; set; }
-
     [InverseProperty("AisleNumberNavigation")]
     public virtual ICollection<AisleBay> AisleBays { get; set; } = new List<AisleBay>();
 

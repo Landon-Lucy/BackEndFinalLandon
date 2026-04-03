@@ -28,5 +28,5 @@ public partial class AisleBay
     public virtual Bay? BayNumberNavigation { get; set; }
 
     [InverseProperty("AisleBay")]
-    public virtual ICollection<Storagelocation> Storagelocations { get; set; } = new List<Storagelocation>();
+    public virtual ICollection<Bin> Bins { get; set; } = new List<Bin>();
 }

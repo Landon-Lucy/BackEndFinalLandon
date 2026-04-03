@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var key = "THIS_IS_MY_SECRET_KEY_1234567890";
@@ -43,7 +44,11 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProv
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -74,9 +79,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-// REGISTER YOUR HERO SERVICE
-//builder.Services.AddScoped<AuthService>();
-//builder.Services.AddScoped<CharacterService>();
+// REGISTER YOUR SERVICES
+// Register application services here
+builder.Services.AddScoped<PurchaseOrderService>();
+
 
 var app = builder.Build();
 

@@ -20,14 +20,17 @@ public partial class AisleShelf
     [Column("aisle_number")]
     public int? AisleNumber { get; set; }
 
+    [Column("shelf_height")]
+    public int? ShelfHeight { get; set; }
+
     [ForeignKey("AisleNumber")]
     [InverseProperty("AisleShelves")]
     public virtual Aisle? AisleNumberNavigation { get; set; }
 
+    [InverseProperty("AisleShelf")]
+    public virtual ICollection<Bin> Bins { get; set; } = new List<Bin>();
+
     [ForeignKey("ShelfLetter")]
     [InverseProperty("AisleShelves")]
     public virtual Shelf? ShelfLetterNavigation { get; set; }
-
-    [InverseProperty("AisleShelf")]
-    public virtual ICollection<Storagelocation> Storagelocations { get; set; } = new List<Storagelocation>();
 }
