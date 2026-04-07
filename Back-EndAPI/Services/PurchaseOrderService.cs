@@ -37,17 +37,20 @@ public class PurchaseOrderService
 
         foreach (var it in request.Items)
         {
-            if (it.Qty <= 0)
-                throw new ArgumentException($"Invalid quantity for SKU {it.SkuNumber}");
+            if (it == null)
+                throw new ArgumentException("Ordered item cannot be null.");
 
-            var item = await _context.Items.FindAsync(it.SkuNumber);
+            if (it.Quantity <= 0)
+                throw new ArgumentException($"Invalid quantity for product {it.ProductId}. Quantity must be greater than 0.");
+
+            var item = await _context.Items.FindAsync(it.ProductId);
             if (item == null)
-                throw new ArgumentException($"Item with SKU {it.SkuNumber} does not exist.");
+                throw new ArgumentException($"Item with SKU {it.ProductId} does not exist.");
 
             var ordered = new OrderedItem
             {
-                SkuNumber = it.SkuNumber,
-                Qty = it.Qty,
+                SkuNumber = it.ProductId,
+                Qty = it.Quantity,
                 CostPerUnit = it.CostPerUnit
             };
 
