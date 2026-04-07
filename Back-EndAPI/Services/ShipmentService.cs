@@ -14,22 +14,28 @@ public class ShipmentService
         _context = context;
     }
 
-    public async Task<(bool Success, string? Error, object? Details)> ReceiveShipmentAsync(ReceiveShipmentRequest request)
+    public async Task<(bool Success, int StatusCode, string? Error, object? Details)> ReceiveShipmentAsync(ReceiveShipmentRequest request)
     {
+
         if (request == null)
-            return (false, "Request is null", null);
+            return (false, 400, "Request is null", null);
 
         if (request.Items == null || request.Items.Count == 0)
-            return (false, "No items provided", null);
+            return (false, 400, "No items provided", null);
 
         // Load shipment
         var shipment = await _context.ReceivedShipments
             .Include(s => s.PurchaseOrder)
                 .ThenInclude(po => po.OrderedItems)
+            .Include(s => s.ReceivedItems)
             .FirstOrDefaultAsync(s => s.Id == request.ShipmentId);
 
         if (shipment == null)
-            return (false, "Shipment not found.", null);
+            return (false, 404, "Shipment not found.", null);
+
+        // Shipment must not already be received
+        if (shipment.ReceivedItems != null && shipment.ReceivedItems.Any())
+            return (false, 409, "Shipment has already been received.", null);
 
         var discrepancies = new List<object>();
 
@@ -41,7 +47,7 @@ public class ShipmentService
                 if (itm.Qty <= 0)
                 {
                     await tx.RollbackAsync();
-                    return (false, $"Invalid quantity for SKU {itm.SkuNumber}", null);
+                    return (false, 400, $"Invalid quantity for SKU {itm.SkuNumber}", null);
                 }
 
                 // Optionally compare to expected qty from purchase order
@@ -70,7 +76,7 @@ public class ShipmentService
                     if (bin == null)
                     {
                         await tx.RollbackAsync();
-                        return (false, $"No existing bin for SKU {itm.SkuNumber}. Creating new bins is not allowed and no empty bin available.", null);
+                        return (false, 400, $"No existing bin for SKU {itm.SkuNumber}. Creating new bins is not allowed and no empty bin available.", null);
                     }
 
                     // Assign the SKU to the empty bin and set the stored quantity
@@ -100,12 +106,12 @@ public class ShipmentService
             await tx.CommitAsync();
 
             var details = new { ShipmentId = shipment.Id, Discrepancies = discrepancies };
-            return (true, null, details);
+            return (true, 200, null, details);
         }
         catch (Exception ex)
         {
             await tx.RollbackAsync();
-            return (false, ex.Message, null);
+            return (false, 500, ex.Message, null);
         }
     }
 }

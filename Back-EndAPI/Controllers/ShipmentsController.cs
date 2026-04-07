@@ -21,9 +21,18 @@ public class ShipmentsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var (success, error, details) = await _service.ReceiveShipmentAsync(request);
+        var (success, statusCode, error, details) = await _service.ReceiveShipmentAsync(request);
         if (!success)
-            return BadRequest(new { error });
+        {
+            return statusCode switch
+            {
+                404 => NotFound(new { error }),
+                409 => Conflict(new { error }),
+                400 => BadRequest(new { error }),
+                500 => StatusCode(500, new { error }),
+                _ => BadRequest(new { error })
+            };
+        }
 
         return Ok(new { message = "Shipment processed.", details });
     }
