@@ -16,8 +16,8 @@ public partial class TransferRecord
     [Column("storagelocationid")]
     public int? Storagelocationid { get; set; }
 
-    [Column("withdrawl")]
-    public bool? Withdrawl { get; set; }
+    [Column("withdrawal")]
+    public bool? Withdrawal { get; set; }
 
     [Column("deposit")]
     public bool? Deposit { get; set; }
@@ -31,9 +31,16 @@ public partial class TransferRecord
     [Column("datetime", TypeName = "timestamp without time zone")]
     public DateTime? Datetime { get; set; }
 
+    [Column("shipped_item_id")]
+    public int? ShippedItemId { get; set; }
+
     [ForeignKey("Receiveditemid")]
     [InverseProperty("TransferRecords")]
     public virtual ReceivedItem? Receiveditem { get; set; }
+
+    [ForeignKey("ShippedItemId")]
+    [InverseProperty("TransferRecords")]
+    public virtual ShippedItem? ShippedItem { get; set; }
 
     [ForeignKey("Storagelocationid")]
     [InverseProperty("TransferRecords")]

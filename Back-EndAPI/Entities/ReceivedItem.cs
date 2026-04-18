@@ -22,6 +22,9 @@ public partial class ReceivedItem
     [Column("qty")]
     public int? Qty { get; set; }
 
+    [Column("actual_price_paid")]
+    public decimal? ActualPricePaid { get; set; }
+
     [InverseProperty("ReceivedItem")]
     public virtual ICollection<Discrepancy> Discrepancies { get; set; } = new List<Discrepancy>();
 

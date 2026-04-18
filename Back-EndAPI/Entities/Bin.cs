@@ -28,9 +28,6 @@ public partial class Bin
     [Column("height")]
     public int? Height { get; set; }
 
-    [Column("volume")]
-    public int? Volume { get; set; }
-
     [ForeignKey("AisleBayId")]
     [InverseProperty("Bins")]
     public virtual AisleBay? AisleBay { get; set; }

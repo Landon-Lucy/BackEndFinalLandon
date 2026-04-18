@@ -19,9 +19,6 @@ public partial class PurchaseOrder
     [Column("vendorid")]
     public int? Vendorid { get; set; }
 
-    [Column("expected_total_cost")]
-    public int? ExpectedTotalCost { get; set; }
-
     [InverseProperty("Purchase")]
     public virtual ICollection<OrderedItem> OrderedItems { get; set; } = new List<OrderedItem>();
 

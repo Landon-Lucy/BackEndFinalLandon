@@ -11,8 +11,6 @@ public class CreatePurchaseOrderRequest
     [Required]
     public int VendorId { get; set; }
 
-    [Range(0, int.MaxValue)]
-    public int? ExpectedTotalCost { get; set; }
 
     [Required]
     [MinLength(1)]

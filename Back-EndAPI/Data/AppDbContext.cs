@@ -22,9 +22,19 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Bin> Bins { get; set; }
 
+    public virtual DbSet<Box> Boxes { get; set; }
+
+    public virtual DbSet<Carrier> Carriers { get; set; }
+
+    public virtual DbSet<Customer> Customers { get; set; }
+
+    public virtual DbSet<CustomerOrder> CustomerOrders { get; set; }
+
     public virtual DbSet<Discrepancy> Discrepancies { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
+
+    public virtual DbSet<Login> Logins { get; set; }
 
     public virtual DbSet<OrderedItem> OrderedItems { get; set; }
 
@@ -37,6 +47,10 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ReceivedShipment> ReceivedShipments { get; set; }
 
     public virtual DbSet<Shelf> Shelves { get; set; }
+
+    public virtual DbSet<ShippedItem> ShippedItems { get; set; }
+
+    public virtual DbSet<SoldItem> SoldItems { get; set; }
 
     public virtual DbSet<TransferRecord> TransferRecords { get; set; }
 
@@ -89,6 +103,41 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.SkuNumberNavigation).WithMany(p => p.Bins).HasConstraintName("fk_sku_number");
         });
 
+        modelBuilder.Entity<Box>(entity =>
+        {
+            entity.HasKey(e => e.Tracking).HasName("box_pkey");
+
+            entity.Property(e => e.Tracking).ValueGeneratedNever();
+
+            entity.HasOne(d => d.CustomerOrder).WithMany(p => p.Boxes).HasConstraintName("box_customer_order_id_fkey");
+        });
+
+        modelBuilder.Entity<Carrier>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("carrier_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("customer_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<CustomerOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("customer_order_pkey");
+
+            entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+            entity.Property(e => e.DateTimeOrdered).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Carrier).WithMany(p => p.CustomerOrders).HasConstraintName("customer_order_carrier_id_fkey");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.CustomerOrders).HasConstraintName("customer_order_customer_id_fkey");
+        });
+
         modelBuilder.Entity<Discrepancy>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("discrepancy_pkey");
@@ -101,6 +150,15 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Item>(entity =>
         {
             entity.HasKey(e => e.SkuNumber).HasName("item_pkey");
+        });
+
+        modelBuilder.Entity<Login>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("login_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Logins).HasConstraintName("login_customer_id_fkey");
         });
 
         modelBuilder.Entity<OrderedItem>(entity =>
@@ -149,6 +207,30 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ShelfLetter).ValueGeneratedNever();
         });
 
+        modelBuilder.Entity<ShippedItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("shippeditem_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Qty).HasDefaultValue(1);
+
+            entity.HasOne(d => d.BoxTrackingNavigation).WithMany(p => p.ShippedItems).HasConstraintName("shippeditem_box_tracking_fkey");
+
+            entity.HasOne(d => d.SkuNumberNavigation).WithMany(p => p.ShippedItems).HasConstraintName("shippeditem_sku_number_fkey");
+        });
+
+        modelBuilder.Entity<SoldItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("solditem_pkey");
+
+            entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+            entity.Property(e => e.Qty).HasDefaultValue(1);
+
+            entity.HasOne(d => d.CustomerOrder).WithMany(p => p.SoldItems).HasConstraintName("solditem_customer_order_id_fkey");
+
+            entity.HasOne(d => d.SkuNumberNavigation).WithMany(p => p.SoldItems).HasConstraintName("solditem_sku_number_fkey");
+        });
+
         modelBuilder.Entity<TransferRecord>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("transferrecord_pkey");
@@ -157,6 +239,8 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Receiveditem).WithMany(p => p.TransferRecords).HasConstraintName("transferrecord_receiveditemid_fkey");
 
+            entity.HasOne(d => d.ShippedItem).WithMany(p => p.TransferRecords).HasConstraintName("fk_shipped_item");
+
             entity.HasOne(d => d.Storagelocation).WithMany(p => p.TransferRecords).HasConstraintName("transferrecord_storagelocationid_fkey");
         });
 
@@ -164,6 +248,8 @@ public partial class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("vendor_pkey");
         });
+        modelBuilder.HasSequence("shipped_item_id_seq", "Team2Part2");
+        modelBuilder.HasSequence("transfer_record_id_seq", "Team2Part2");
 
         OnModelCreatingPartial(modelBuilder);
     }

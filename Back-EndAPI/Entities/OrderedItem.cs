@@ -22,9 +22,9 @@ public partial class OrderedItem
     [Column("qty")]
     public int Qty { get; set; }
 
-    [Column("cost_per_unit")]
+    [Column("price_to_be_paid")]
     [Precision(12, 2)]
-    public decimal CostPerUnit { get; set; }
+    public decimal PriceToBePaid { get; set; }
 
     [InverseProperty("OrderedItem")]
     public virtual ICollection<Discrepancy> Discrepancies { get; set; } = new List<Discrepancy>();

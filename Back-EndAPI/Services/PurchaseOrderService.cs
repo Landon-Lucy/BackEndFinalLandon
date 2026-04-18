@@ -32,7 +32,6 @@ public class PurchaseOrderService
         {
             DateOrdered = DateOnly.FromDateTime(request.DateOrdered),
             Vendorid = request.VendorId,
-            ExpectedTotalCost = request.ExpectedTotalCost
         };
 
         foreach (var it in request.Items)
@@ -51,7 +50,7 @@ public class PurchaseOrderService
             {
                 SkuNumber = it.ProductId,
                 Qty = it.Quantity,
-                CostPerUnit = it.CostPerUnit
+                PriceToBePaid = it.CostPerUnit
             };
 
             po.OrderedItems.Add(ordered);

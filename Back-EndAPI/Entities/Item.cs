@@ -21,7 +21,8 @@ public partial class Item
     public string? Description { get; set; }
 
     [Column("suggested_selling_price")]
-    public int? SuggestedSellingPrice { get; set; }
+    [Precision(10, 2)]
+    public decimal? SuggestedSellingPrice { get; set; }
 
     [Column("volume_per_unit")]
     public int? VolumePerUnit { get; set; }
@@ -34,4 +35,10 @@ public partial class Item
 
     [InverseProperty("SkuNumberNavigation")]
     public virtual ICollection<ReceivedItem> ReceivedItems { get; set; } = new List<ReceivedItem>();
+
+    [InverseProperty("SkuNumberNavigation")]
+    public virtual ICollection<ShippedItem> ShippedItems { get; set; } = new List<ShippedItem>();
+
+    [InverseProperty("SkuNumberNavigation")]
+    public virtual ICollection<SoldItem> SoldItems { get; set; } = new List<SoldItem>();
 }
