@@ -14,6 +14,27 @@ public class ShipmentService
         _context = context;
     }
 
+    public async Task<(bool Success, int StatusCode, string? Error, object? Details)> CreateShipmentAsync(CreateShipmentRequest request)
+    {
+        if (request == null)
+            return (false, 400, "Request is null", null);
+
+        var po = await _context.PurchaseOrders.FindAsync(request.PurchaseOrderId);
+        if (po == null)
+            return (false, 404, "Purchase order not found", null);
+
+        var shipment = new ReceivedShipment
+        {
+            PurchaseOrderId = request.PurchaseOrderId,
+            Date = request.Date.HasValue ? DateOnly.FromDateTime(request.Date.Value) : DateOnly.FromDateTime(DateTime.UtcNow)
+        };
+
+        _context.ReceivedShipments.Add(shipment);
+        await _context.SaveChangesAsync();
+
+        return (true, 201, null, shipment.Id);
+    }
+
     public async Task<(bool Success, int StatusCode, string? Error, object? Details)> ReceiveShipmentAsync(ReceiveShipmentRequest request)
     {
 

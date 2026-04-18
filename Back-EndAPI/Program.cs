@@ -83,6 +83,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register application services here
 builder.Services.AddScoped<PurchaseOrderService>();
 builder.Services.AddScoped<ShipmentService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<InventoryService>();
 
 
 var app = builder.Build();

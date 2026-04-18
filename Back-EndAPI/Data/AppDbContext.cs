@@ -29,6 +29,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Customer> Customers { get; set; }
 
     public virtual DbSet<CustomerOrder> CustomerOrders { get; set; }
+    public virtual DbSet<CustomerOrderStatus> CustomerOrderStatuses { get; set; }
 
     public virtual DbSet<Discrepancy> Discrepancies { get; set; }
 

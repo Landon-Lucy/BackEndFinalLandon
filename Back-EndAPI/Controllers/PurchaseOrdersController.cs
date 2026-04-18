@@ -27,7 +27,25 @@ public class PurchaseOrdersController : ControllerBase
             if (po == null)
                 return BadRequest(new { error = "Vendor not found." });
 
-            return Created($"/api/purchaseorders/{po.Id}", po);
+            // map to response DTO
+            var dto = new PurchaseOrderResponseDto
+            {
+                Id = po.Id,
+                DateOrdered = po.DateOrdered.ToDateTime(TimeOnly.MinValue),
+                VendorId = po.Vendorid
+            };
+
+            foreach (var oi in po.OrderedItems)
+            {
+                dto.Items.Add(new OrderedItemResponseDto
+                {
+                    Id = oi.Id,
+                    ProductId = oi.SkuNumber ?? 0,
+                    Quantity = oi.Qty
+                });
+            }
+
+            return Created($"/api/purchaseorders/{po.Id}", dto);
         }
         catch (ArgumentException ex)
         {
