@@ -75,6 +75,58 @@ public class OrderService
             await tx.RollbackAsync();
             return (false, 500, ex.Message, null);
         }
+
+    }
+
+    public async Task<(bool Success, int StatusCode, string? Error, OrderReportDto? Result)> GetOrderReportAsync(int orderId)
+    {
+        var order = await _context.CustomerOrders
+            .Include(o => o.SoldItems)
+            .Include(o => o.Boxes)
+                .ThenInclude(b => b.ShippedItems)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null)
+            return (false, 404, "Order not found", null);
+
+        var status = await _context.CustomerOrderStatuses.FindAsync(orderId);
+
+        var dto = new OrderReportDto
+        {
+            OrderId = order.Id,
+            CustomerId = order.CustomerId,
+            DateOrdered = order.DateTimeOrdered.HasValue ? order.DateTimeOrdered.Value.ToDateTime(TimeOnly.MinValue) : null,
+            Status = status?.Status
+        };
+
+        foreach (var si in order.SoldItems)
+        {
+            dto.Items.Add(new OrderItemDto
+            {
+                ProductId = si.SkuNumber ?? 0,
+                Quantity = si.Qty
+            });
+        }
+
+        // Boxes and shipped items
+        foreach (var box in order.Boxes)
+        {
+            var boxDto = new BoxDto
+            {
+                Tracking = box.Tracking,
+                DateShipped = box.DateShipped.HasValue ? box.DateShipped.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null
+            };
+
+            var shippedItems = await _context.ShippedItems.Where(si => si.BoxTracking == box.Tracking).ToListAsync();
+            foreach (var s in shippedItems)
+            {
+                boxDto.Items.Add(new OrderItemDto { ProductId = s.SkuNumber ?? 0, Quantity = s.Qty });
+            }
+
+            dto.Boxes.Add(boxDto);
+        }
+
+        return (true, 200, null, dto);
     }
 
     public async Task<(bool Success, int StatusCode, string? Error)> PickOrderAsync(int orderId, int binId)

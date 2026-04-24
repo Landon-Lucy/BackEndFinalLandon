@@ -94,4 +94,20 @@ public class OrdersController : ControllerBase
 
         return Ok(new { message = "Order shipped." });
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        var (success, statusCode, error, result) = await _service.GetOrderReportAsync(id);
+        if (!success)
+        {
+            return statusCode switch
+            {
+                404 => NotFound(new { error }),
+                _ => BadRequest(new { error })
+            };
+        }
+
+        return Ok(result);
+    }
 }

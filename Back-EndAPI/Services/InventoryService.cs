@@ -45,4 +45,51 @@ public class InventoryService
 
         return (true, 200, null);
     }
+
+    public async Task<(bool Success, int StatusCode, string? Error, List<InventoryReportDto>? Result)> GetInventoryAsync(int? productId = null)
+    {
+        // If productId provided, ensure it exists
+        if (productId.HasValue)
+        {
+            var item = await _context.Items.FindAsync(productId.Value);
+            if (item == null)
+                return (false, 404, "Product not found", null);
+        }
+
+        var binsQuery = _context.Bins.AsQueryable();
+        if (productId.HasValue)
+            binsQuery = binsQuery.Where(b => b.SkuNumber == productId.Value);
+
+        // Only consider bins that have an assigned SKU
+        var bins = await binsQuery.Where(b => b.SkuNumber != null).ToListAsync();
+
+        var grouped = bins.GroupBy(b => b.SkuNumber);
+
+        var result = new List<InventoryReportDto>();
+        foreach (var g in grouped)
+        {
+            var pid = g.Key ?? 0;
+            var item = await _context.Items.FindAsync(pid);
+            var dto = new InventoryReportDto
+            {
+                ProductId = pid,
+                ProductName = item?.Name,
+                TotalQuantity = g.Sum(b => b.Qtystored ?? 0)
+            };
+
+            foreach (var b in g)
+            {
+                dto.Bins.Add(new BinSummaryDto
+                {
+                    BinId = b.Id,
+                    ProductId = b.SkuNumber,
+                    Quantity = b.Qtystored ?? 0
+                });
+            }
+
+            result.Add(dto);
+        }
+
+        return (true, 200, null, result);
+    }
 }

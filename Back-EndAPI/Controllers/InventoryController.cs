@@ -37,4 +37,21 @@ public class InventoryController : ControllerBase
 
         return Ok(new { message = "Inventory stored." });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] int? productId)
+    {
+        var (success, statusCode, error, result) = await _service.GetInventoryAsync(productId);
+        if (!success)
+        {
+            return statusCode switch
+            {
+                404 => NotFound(new { error }),
+                400 => BadRequest(new { error }),
+                _ => BadRequest(new { error })
+            };
+        }
+
+        return Ok(result);
+    }
 }
